@@ -5,32 +5,100 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>唱歌計算機</title>
     <style>
-        td {
+        @font-face {
+            font-family: 'Gaoel';
+            src: url('./fonts/gaoel.ttf')format("truetype"),
+                url('./fonts/gaoel.woff')format("woff");
+        }
+
+
+        body {
+            /* background-image: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+
+            background-image: linear-gradient(to right, #ffecd2 0%, #fcb69f 100%); */
+
+            /* background-image: linear-gradient(to right, #e8c8ff 0%, #e6dee9 100%); */
+        }
+
+        table {
+            width: 300px;
+            height: 500px;
+            padding: 5px;
+            background-image: linear-gradient(to top, rgba(150, 200, 200, 0.5) 0%, #66a6ff 200%);
+
+            /* background-image: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%); */
+            border-spacing: 5px;
+            border-radius: 10px;
+            position: absolute;
+            top: calc(50vh - 250px);
+            right: calc(50vw - 150px);
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+
+        table td {
+            /* padding: 4px; */
+            border: 2px rgba(255, 255, 255, 0.5) solid;
+            border-radius: 10px;
             width: 20px;
-            height: 20px;
-            background: rgb(252, 222, 227);
+            height: 25px;
+            /* background: rgba(255, 210, 210, 0.8); */
+
+
+            text-align: center;
+            font-family: 'Gaoel';
+            font-size: larger;
+            color: white;
+
+            text-shadow: rgb(142, 142, 142) 0.1em 0.1em 0.2em
+        }
+
+        #formula {
+            text-align: right;
+            font-size: 10px;
+            text-shadow: none;
+            color: rgba(107, 107, 107, 0.5);
+        }
+
+        #text {
+            text-align: right;
+            font-size: 20px;
+            text-shadow: none;
+            color: rgb(107, 107, 107);
         }
     </style>
 </head>
 
 <body>
-    <table border="1">
-        <tr>
-            <td colspan="4" id="text"></td>
+    <table border="1" cellpadding="2" callspacing="1"
+        style="border-collapse: collapse; border: 10px solid rgba(255, 255, 255, 0); border-radius: 10px; max-width: 280px;">
+        <track>
+        <td colspan="4" id="formula"
+            style=" min-height: 30px; background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 200%); border: none; border-radius: 0px; max-width: 200px;">
+        </td>
         </tr>
         <tr>
-            <td>C</td>
-            <td>/</td>
-            <td>*</td>
-            <td>-</td>
+            <td colspan="4" id="text" style=" min-height:30px;
+                background-image: linear-gradient(135deg, #f5f7fa -20%, #c3cfe2 200%);
+                border: none;border-radius: 0px; max-width: 200px;">
+            </td>
+        </tr>
+        <tr>
+            <td style="font-family:'Franklin Gothic Medium'">C</td>
+            <td style="font-family:'Franklin Gothic Medium'">/</td>
+            <td style="font-family:'Franklin Gothic Medium'; font-weight: bolder; ">*</td>
+            <td style="font-weight: 500;">-</td>
         </tr>
         <tr>
             <td>7</td>
             <td>8</td>
             <td>9</td>
-            <td rowspan="2">+</td>
+            <td rowspan="2" style="font-family:'Franklin Gothic Medium'">+</td>
         </tr>
         <tr>
             <td>4</td>
@@ -41,50 +109,83 @@
             <td>1</td>
             <td>2</td>
             <td>3</td>
-            <td rowspan="2">=</td>
+            <td rowspan="2" style="font-family:'Franklin Gothic Medium'">=</td>
         </tr>
         <tr>
             <td colspan="2">0</td>
             <td>.</td>
         </tr>
     </table>
+    <audio src="./meow.mp3" volume="1" id="audio"></audio>
     <script>
         const text = document.getElementById('text')
+        const formula = document.getElementById('formula')
         // 'td:not(#text)'：  td 中不是 id 為 text 的東西
         const btns = document.querySelectorAll('td:not(#text)')
 
+        let reset = false;
         for (const btn of btns) {
+            // btn.addEventListener("mouseover", (event) => {
+            //     event.target.style.color = "yellow";
+
+            //     setTimeout(() => {
+            //         event.target.style.color = "";
+            //     }, 500);
+
+            // }, false);
+
+
             btn.onclick = () => {
+
+                btn.style.backgroundColor = 'rgba(100, 100, 100, 0.1)';
+                setTimeout(() => {
+                    btn.style.backgroundColor = "";
+                }, 120);
+
+
+
                 const btnText = btn.innerText
                 if (btnText === '=') {
-                    text.innerText = eval(text.innerText)
+                    formula.innerText = text.innerText + `=`
+                    text.innerText = eval(text.innerText);
+                    reset = true;
+
                 } else if (btnText === 'C') {
+                    formula.innerText = ''
                     text.innerText = '0'
                 } else {
                     if (text.innerText === '-' && isNaN(parseInt(btnText))) return
 
-                    if (text.innerText !== '0') {
+                    if (text.innerText !== '0' && !reset) {
                         text.innerText += btnText
-                    } else if (!['+', '*', '/'].includes(btnText)) {
+                    } else if (!['+', '*', '/'].includes(btnText) || reset) {
+                        formula.innerText += text.innerText
                         text.innerText = btnText
+                        reset = false;
                     }
 
                 }
             }
         }
 
+
         document.onkeydown = event => {
             const btnText = event.key
+
             if (btnText === 'Enter' || btnText === '=') {
+                formula.innerText = text.innerText + `=`
                 text.innerText = eval(text.innerText)
-            } else if (btnText === 'C') {
+                reset = true;
+            } else if (btnText === 'c' || btnText === 'C') {
                 text.innerText = '0'
             } else {
+
                 if (text.innerText === '-' && isNaN(parseInt(btnText))) return
 
-                if (text.innerText !== '0') {
+                if (text.innerText !== '0' && ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'Enter', '+', '-', '*', '/', '.'].includes(btnText) && !reset) {
                     text.innerText += btnText
-                } else if (!['+', '*', '/'].includes(btnText)) {
+                }
+                else if (!['+', '*', '/'].includes(btnText) && ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'Enter', '+', '-', '*', '/', '.'].includes(btnText) || reset) {
                     text.innerText = btnText
                 }
             }
